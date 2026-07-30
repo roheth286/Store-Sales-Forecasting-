@@ -6,7 +6,7 @@ import seaborn as sns
 from scipy.signal import periodogram
 from statsmodels.tsa.stattools import pacf
 
-def plot_holiday_vs_sales(df, output_dir="visualization"):
+def plot_holiday_vs_sales(df, output_dir="plots"):
     plt.close('all')
     os.makedirs(output_dir, exist_ok=True)
     plt.figure(figsize=(8, 5))
@@ -16,9 +16,9 @@ def plot_holiday_vs_sales(df, output_dir="visualization"):
     plt.ylabel('Average Sales')
     plt.tight_layout()
     plt.savefig(f"{output_dir}/holiday_vs_sales.png", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.close('all')
 
-def plot_sales_vs_oil(df, full_oil_df, output_dir="visualization"):
+def plot_sales_vs_oil(df, full_oil_df, output_dir="plots"):
     plt.close('all')
     os.makedirs(output_dir, exist_ok=True)
     daily_sales = df.groupby('date')['sales'].sum().reset_index()
@@ -41,9 +41,9 @@ def plot_sales_vs_oil(df, full_oil_df, output_dir="visualization"):
     plt.title('Relationship: Sales vs. Oil Price (30-Day Centered Moving Averages)', fontsize=12, fontweight='bold')
     fig.tight_layout()
     plt.savefig(f"{output_dir}/sales_vs_oil.png", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.close('all')
 
-def plot_periodogram(df, output_dir="visualization"):
+def plot_periodogram(df, output_dir="plots"):
     plt.close('all')
     os.makedirs(output_dir, exist_ok=True)
     daily_sales = df.groupby("date")["sales"].sum().asfreq("D").interpolate()
@@ -80,9 +80,9 @@ def plot_periodogram(df, output_dir="visualization"):
     ax.grid(True, which="both", alpha=0.3)
     plt.tight_layout()
     plt.savefig(f"{output_dir}/periodogram.png", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.close('all')
 
-def plot_weekly_seasonality(df, output_dir="visualization"):
+def plot_weekly_seasonality(df, output_dir="plots"):
     plt.close('all')
     os.makedirs(output_dir, exist_ok=True)
     seasonal_df = df.groupby("date")["sales"].sum().reset_index()
@@ -118,9 +118,9 @@ def plot_weekly_seasonality(df, output_dir="visualization"):
     plt.grid(alpha=0.3)
     plt.tight_layout()
     plt.savefig(f"{output_dir}/weekly_seasonality.png", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.close('all')
 
-def plot_monthly_seasonality(df, output_dir="visualization"):
+def plot_monthly_seasonality(df, output_dir="plots"):
     plt.close('all')
     os.makedirs(output_dir, exist_ok=True)
     daily_df = df.groupby("date")["sales"].sum().reset_index()
@@ -179,9 +179,9 @@ def plot_monthly_seasonality(df, output_dir="visualization"):
     plt.xticks(rotation=15)
     plt.tight_layout()
     plt.savefig(f"{output_dir}/monthly_seasonality.png", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.close('all')
 
-def plot_autocorrelation(df, output_dir="visualization"):
+def plot_autocorrelation(df, output_dir="plots"):
     plt.close('all')
     os.makedirs(output_dir, exist_ok=True)
     daily_sales = df.groupby(["date", "store_nbr", "family"])["sales"].sum().reset_index()
@@ -209,9 +209,9 @@ def plot_autocorrelation(df, output_dir="visualization"):
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
     plt.savefig(f"{output_dir}/autocorrelation.png", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.close('all')
 
-def plot_pacf(df, output_dir="visualization"):
+def plot_pacf(df, output_dir="plots"):
     plt.close('all')
     os.makedirs(output_dir, exist_ok=True)
     daily_sales = df.groupby("date")["sales"].sum()
@@ -245,9 +245,9 @@ def plot_pacf(df, output_dir="visualization"):
     ax.grid(alpha=0.3)
     plt.tight_layout()
     plt.savefig(f"{output_dir}/pacf.png", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.close('all')
 
-def plot_store_hierarchies(df, output_dir="visualization"):
+def plot_store_hierarchies(df, output_dir="plots"):
     plt.close('all')
     os.makedirs(output_dir, exist_ok=True)
     fig, axes = plt.subplots(2, 2, figsize=(16, 12))
@@ -275,9 +275,9 @@ def plot_store_hierarchies(df, output_dir="visualization"):
 
     plt.tight_layout()
     plt.savefig(f"{output_dir}/store_hierarchies.png", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.close('all')
 
-def plot_promo_impact_all_families(df, output_dir="visualization"):
+def plot_promo_impact_all_families(df, output_dir="plots"):
     plt.close('all')
     os.makedirs(output_dir, exist_ok=True)
     promo_sales_all = (
@@ -336,9 +336,9 @@ def plot_promo_impact_all_families(df, output_dir="visualization"):
 
     plt.tight_layout()
     plt.savefig(f"{output_dir}/promo_impact_all_families.png", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.close('all')
 
-def plot_all_visualizations(df, full_oil_df, output_dir="visualization"):
+def plot_all_visualizations(df, full_oil_df, output_dir="plots"):
     os.makedirs(output_dir, exist_ok=True)
     print(f"Generating and saving all 9 plots to '{output_dir}/'...")
     plot_holiday_vs_sales(df, output_dir=output_dir)
