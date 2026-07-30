@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -5,18 +6,21 @@ import seaborn as sns
 from scipy.signal import periodogram
 from statsmodels.tsa.stattools import pacf
 
-def plot_holiday_vs_sales(df):
+def plot_holiday_vs_sales(df, output_dir="visualization"):
     plt.close('all')
+    os.makedirs(output_dir, exist_ok=True)
     plt.figure(figsize=(8, 5))
     sns.barplot(data=df, x='is_Holiday', y='sales', errorbar=('ci', 95), color="#467297")
     plt.title('Average Store Sales per Day', fontsize=12, fontweight='bold')
     plt.xlabel('Is Holiday (0 = No, 1 = Yes)')
     plt.ylabel('Average Sales')
     plt.tight_layout()
+    plt.savefig(f"{output_dir}/holiday_vs_sales.png", dpi=300, bbox_inches="tight")
     plt.show()
 
-def plot_sales_vs_oil(df, full_oil_df):
+def plot_sales_vs_oil(df, full_oil_df, output_dir="visualization"):
     plt.close('all')
+    os.makedirs(output_dir, exist_ok=True)
     daily_sales = df.groupby('date')['sales'].sum().reset_index()
     daily_sales['sales_roll_30'] = daily_sales['sales'].rolling(window=30, center=True, min_periods=1).mean()
 
@@ -36,10 +40,12 @@ def plot_sales_vs_oil(df, full_oil_df):
 
     plt.title('Relationship: Sales vs. Oil Price (30-Day Centered Moving Averages)', fontsize=12, fontweight='bold')
     fig.tight_layout()
+    plt.savefig(f"{output_dir}/sales_vs_oil.png", dpi=300, bbox_inches="tight")
     plt.show()
 
-def plot_periodogram(df):
+def plot_periodogram(df, output_dir="visualization"):
     plt.close('all')
+    os.makedirs(output_dir, exist_ok=True)
     daily_sales = df.groupby("date")["sales"].sum().asfreq("D").interpolate()
 
     freqs, spectrum = periodogram(
@@ -73,10 +79,12 @@ def plot_periodogram(df):
     ax.set_title("Periodogram of Total Daily Sales (Identifying Dominant Frequencies)", fontsize=14, fontweight="bold")
     ax.grid(True, which="both", alpha=0.3)
     plt.tight_layout()
+    plt.savefig(f"{output_dir}/periodogram.png", dpi=300, bbox_inches="tight")
     plt.show()
 
-def plot_weekly_seasonality(df):
+def plot_weekly_seasonality(df, output_dir="visualization"):
     plt.close('all')
+    os.makedirs(output_dir, exist_ok=True)
     seasonal_df = df.groupby("date")["sales"].sum().reset_index()
     seasonal_df["day"] = seasonal_df["date"].dt.day_name()
     seasonal_df["week"] = seasonal_df["date"].dt.to_period("W").astype(str)
@@ -109,10 +117,12 @@ def plot_weekly_seasonality(df):
     plt.legend(loc="upper left")
     plt.grid(alpha=0.3)
     plt.tight_layout()
+    plt.savefig(f"{output_dir}/weekly_seasonality.png", dpi=300, bbox_inches="tight")
     plt.show()
 
-def plot_monthly_seasonality(df):
+def plot_monthly_seasonality(df, output_dir="visualization"):
     plt.close('all')
+    os.makedirs(output_dir, exist_ok=True)
     daily_df = df.groupby("date")["sales"].sum().reset_index()
     daily_df["month"] = daily_df["date"].dt.month_name()
     daily_df["year"] = daily_df["date"].dt.year
@@ -168,10 +178,12 @@ def plot_monthly_seasonality(df):
     plt.grid(alpha=0.3)
     plt.xticks(rotation=15)
     plt.tight_layout()
+    plt.savefig(f"{output_dir}/monthly_seasonality.png", dpi=300, bbox_inches="tight")
     plt.show()
 
-def plot_autocorrelation(df):
+def plot_autocorrelation(df, output_dir="visualization"):
     plt.close('all')
+    os.makedirs(output_dir, exist_ok=True)
     daily_sales = df.groupby(["date", "store_nbr", "family"])["sales"].sum().reset_index()
     daily_sales = daily_sales.sort_values(by=["store_nbr", "family", "date"]).reset_index(drop=True)
 
@@ -196,10 +208,12 @@ def plot_autocorrelation(df):
     ax.set_title("Autocorrelation of Sales by Lag (Lags 1 to 31)", fontsize=14, fontweight="bold")
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
+    plt.savefig(f"{output_dir}/autocorrelation.png", dpi=300, bbox_inches="tight")
     plt.show()
 
-def plot_pacf(df):
+def plot_pacf(df, output_dir="visualization"):
     plt.close('all')
+    os.makedirs(output_dir, exist_ok=True)
     daily_sales = df.groupby("date")["sales"].sum()
     pacf_values = pacf(daily_sales, nlags=31, method="ywm")
 
@@ -230,10 +244,12 @@ def plot_pacf(df):
     ax.legend(loc="upper right")
     ax.grid(alpha=0.3)
     plt.tight_layout()
+    plt.savefig(f"{output_dir}/pacf.png", dpi=300, bbox_inches="tight")
     plt.show()
 
-def plot_store_hierarchies(df):
+def plot_store_hierarchies(df, output_dir="visualization"):
     plt.close('all')
+    os.makedirs(output_dir, exist_ok=True)
     fig, axes = plt.subplots(2, 2, figsize=(16, 12))
 
     family_sales = df.groupby("family")["sales"].mean().sort_values(ascending=True)
@@ -258,10 +274,12 @@ def plot_store_hierarchies(df):
     axes[1, 1].set_title("4. Share of Total National Sales by Store Format (Pie Chart)", fontsize=11, fontweight="bold")
 
     plt.tight_layout()
+    plt.savefig(f"{output_dir}/store_hierarchies.png", dpi=300, bbox_inches="tight")
     plt.show()
 
-def plot_promo_impact_all_families(df):
+def plot_promo_impact_all_families(df, output_dir="visualization"):
     plt.close('all')
+    os.makedirs(output_dir, exist_ok=True)
     promo_sales_all = (
         df.groupby(["family", df["onpromotion"] > 0])["sales"]
         .mean()
@@ -317,4 +335,19 @@ def plot_promo_impact_all_families(df):
     ax.grid(axis="x", alpha=0.3)
 
     plt.tight_layout()
+    plt.savefig(f"{output_dir}/promo_impact_all_families.png", dpi=300, bbox_inches="tight")
     plt.show()
+
+def plot_all_visualizations(df, full_oil_df, output_dir="visualization"):
+    os.makedirs(output_dir, exist_ok=True)
+    print(f"Generating and saving all 9 plots to '{output_dir}/'...")
+    plot_holiday_vs_sales(df, output_dir=output_dir)
+    plot_sales_vs_oil(df, full_oil_df, output_dir=output_dir)
+    plot_periodogram(df, output_dir=output_dir)
+    plot_weekly_seasonality(df, output_dir=output_dir)
+    plot_monthly_seasonality(df, output_dir=output_dir)
+    plot_autocorrelation(df, output_dir=output_dir)
+    plot_pacf(df, output_dir=output_dir)
+    plot_store_hierarchies(df, output_dir=output_dir)
+    plot_promo_impact_all_families(df, output_dir=output_dir)
+    print(f"All 9 plots saved successfully to '{output_dir}/'!")
