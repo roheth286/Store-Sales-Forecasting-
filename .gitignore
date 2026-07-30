@@ -1,7 +1,33 @@
+# Virtual environments
 .venv/
+venv/
+ENV/
+env/
+
+# Data directories (contains large raw/processed files)
 data/raw/
 data/processed/
+*.zip
+*.tar.gz
+*.csv
+*.parquet
+*.h5
+
+# Python cache and temporary files
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# IDE and OS files
+.vscode/
+.idea/
 .DS_Store
+Thumbs.db
