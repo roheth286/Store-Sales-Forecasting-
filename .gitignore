@@ -12,6 +12,8 @@ data/processed/*
 # Generated plot images (ignore generated PNGs, keep plots folder via .gitkeep)
 plots/*
 !plots/.gitkeep
+notebooks/plots/*
+!notebooks/plots/.gitkeep
 
 # Python bytecode & cache
 __pycache__/

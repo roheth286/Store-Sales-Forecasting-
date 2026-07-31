@@ -8,8 +8,9 @@ def add_transaction_features(target_df):
 
     daily_store = daily_store.sort_values(by=["store_nbr", "date"]).reset_index(drop=True)
 
-    daily_store["trans_lag_1"] = daily_store.groupby("store_nbr")["transactions"].shift(1).fillna(0)
-    daily_store["trans_lag_7"] = daily_store.groupby("store_nbr")["transactions"].shift(7).fillna(0)
+    # Calculate transaction lags without filling with 0 (keep NaNs)
+    daily_store["trans_lag_1"] = daily_store.groupby("store_nbr")["transactions"].shift(1)
+    daily_store["trans_lag_7"] = daily_store.groupby("store_nbr")["transactions"].shift(7)
 
     daily_store["trans_roll_mean_7"] = daily_store.groupby("store_nbr")["transactions"].transform(
         lambda x: x.rolling(window=7, center=False, min_periods=1).mean()
