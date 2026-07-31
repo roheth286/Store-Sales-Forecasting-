@@ -8,9 +8,14 @@ An end-to-end production data science pipeline and machine learning project for 
 
 This repository provides a complete time-series forecasting solution for predicting daily unit sales across **54 store locations** and **33 product families** in Ecuador. 
 
-The project incorporates macro-economic factors (Ecuadorian crude oil prices), store-level foot traffic (customer transactions), public holiday events across three geographical tiers (National, Regional, and Local), calendar seasonality, and promotional dynamics.
+The project incorporates macro-economic factors (20-point bisect interpolated Ecuadorian crude oil prices), store-level foot traffic (customer transactions via 54 store linear regression models), public holiday events across three geographical tiers (National, Regional, and Local), calendar seasonality, promotional dynamics, and hierarchical target encodings.
 
-> 🛠️ **Status:** Data cleaning, integration, feature engineering (42 features), and EDA visualization pipelines are complete. **Machine Learning Model Training (LightGBM / XGBoost baseline with 16-day recursive forecasting) is currently under active development.**
+### 🏆 Modeling & Machine Learning Approach
+- **Evaluation Metric:** Root Mean Squared Logarithmic Error (RMSLE).
+- **Target Transformation:** $y = \ln(\text{sales} + 1)$ (`np.log1p`) to align standard RMSE loss with Kaggle's official RMSLE metric.
+- **Model Architecture:** Baseline evaluation compares LightGBM (`LGBMRegressor`) against XGBoost (`XGBRegressor` with `tree_method='hist'` and native categorical support).
+- **Validation Benchmark:** Evaluated on a 16-day holdout validation split (August 1 to August 15, 2017). Baseline XGBoost achieved a top-tier validation score of **`0.35823` RMSLE**.
+- **Multi-Step Test Forecasting:** Implements a **16-Step Direct-Recursive (DirRec)** forecasting strategy. For each horizon date $h \in [1 \dots 16]$ (August 16–31, 2017), a dedicated model is trained for horizon $h$, predictions are generated for all 1,782 store-family pairs, and short-term lags (`sales_lag_1`, `7`, `14`, `trans_lag_1`, `7`) and rolling statistics are updated recursively day-by-day to populate `submission.csv`.
 
 ---
 
@@ -58,10 +63,13 @@ notebooks/pipeline.ipynb
 ```
 * Executing `notebooks/pipeline.ipynb` runs the modular code from `src/` end-to-end:
   1. Loads and merges raw datasets from `data/raw/`.
-  2. Imputes missing oil prices and transaction records.
+  2. Imputes missing oil prices (20-point bisect algorithm) and transaction records.
   3. Filters pre-opening zero-sales days across late-opening stores.
-  4. Manufactures all **42 feature columns** and saves `data/processed/train_processed.parquet`.
-  5. Generates and saves all **9 high-resolution EDA plots** directly into the `plots/` folder.
+  4. Manufactures all **42 feature columns** across `df` and `test_df` (`full_df` concatenation) and saves `data/processed/train_processed.parquet`.
+  5. Generates and saves all **9 high-resolution EDA plots** directly into `plots/`.
+  6. Fits 54 store linear regression models for test transaction estimation.
+  7. Trains LightGBM & XGBoost baseline models on the 16-day validation split.
+  8. Executes 16-step DirRec forecasting to predict `test.csv` sales and outputs `data/processed/submission.csv`.
 
 #### **Option B: Original Exploration Notebook**
 If you wish to view the original cell-by-cell exploratory data analysis and initial experimentation:
@@ -78,16 +86,18 @@ Store_Sales_Forecasting/
 ├── .venv/                         # Virtual environment
 ├── data/
 │   ├── raw/                       # 7 Raw CSV datasets
-│   └── processed/                 # Prepared datasets (train_processed.parquet)
+│   └── processed/                 # Prepared datasets & submission.csv
 ├── notebooks/
 │   └── pipeline.ipynb             # Modular end-to-end pipeline notebook
 ├── plots/                         # 9 Generated EDA visualization plots (PNG format)
 ├── docs/
 │   └── feature_engineering.md     # Detailed documentation of all 42 features & EDA rationale
 ├── src/                           # Production source code
-│   ├── preprocessing/             # Loaders, holiday logic, oil & transaction imputation, cleaning
+│   ├── preprocessing/             # Loaders, holiday logic, 20-pt bisect oil & transaction imputation, cleaning
 │   ├── features/                  # Calendar, sales lags, rolling windows, promo & hierarchical features
-│   └── visualization/             # Master plotting module for all 9 EDA charts
+│   ├── visualization/             # Master plotting module for all 9 EDA charts
+│   ├── models/                    # Model training (LGBM/XGB), 16-step DirRec predictor & evaluation
+│   └── utils/                     # Submission CSV exporter
 ├── main.ipynb                     # Original exploration notebook
 ├── README.md                      # Project documentation
 └── requirements.txt               # Project Python package dependencies

@@ -8,26 +8,6 @@ import xgboost as xgb
 
 
 def dirrec_predict(df, test_df, store_models, features=None):
-    """
-    Executes 16-step Direct-Recursive (DirRec) forecasting loop using XGBoost.
-    Matches Cell 93 of main.ipynb exactly.
-    
-    Parameters:
-    -----------
-    df : pd.DataFrame
-        Clean historical training dataframe.
-    test_df : pd.DataFrame
-        Test dataframe for August 16 to August 31, 2017.
-    store_models : dict
-        54 fitted (m, c) linear regression tuples for store transaction estimation.
-    features : list, optional
-        Predictor feature column names.
-        
-    Returns:
-    --------
-    test_df : pd.DataFrame
-        Test dataframe populated with 16-day predicted sales and transactions.
-    """
     df = df.copy().sort_values(by=["store_nbr", "family", "date"]).reset_index(drop=True)
     test_df = test_df.copy().sort_values(by=["store_nbr", "family", "date"]).reset_index(drop=True)
 

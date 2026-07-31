@@ -20,14 +20,15 @@ Directly merging `holidays_events.csv` causes severe row duplication because mul
    * **National Scope (`locale == 'National'`):** Applies to all 54 stores in Ecuador on that date.
    * **Regional Scope (`locale == 'Regional'`):** Applies only to stores located in matching `state`.
    * **Local Scope (`locale == 'Local'`):** Applies only to stores located in matching `city`.
-4. **Aggregation:** Grouped each scope table by `[date, location]` using `.max()` so multiple holidays on one date collapse into a single binary flag (`1`). Combined across levels:
-   $$\text{is\_Holiday} = \max(\text{National\_Holiday}, \text{Regional\_Holiday}, \text{Local\_Holiday})$$
-   $$\text{is\_Event} = \max(\text{National\_Event}, \text{Regional\_Event}, \text{Local\_Event})$$
+4. **Aggregation:** Grouped each scope table by `[date, location]` using `.max()` so multiple holidays on one date collapse into a single binary flag (`1`).
 
-### Step 1.3: Continuous Daily Oil Price Interpolation
-* `oil.csv` contains daily crude oil prices ($dcoilwtico$), but has missing data on weekends and holidays.
-* Created a continuous daily date table from **Jan 1, 2013 to Aug 31, 2017**.
-* Filled missing weekend/holiday oil prices using linear interpolation (`.interpolate(method='linear').bfill().ffill()`).
+### Step 1.3: Continuous Daily Oil Price Interpolation (20-Point Bisect Neighborhood Average)
+* `oil.csv` contains daily crude oil prices ($dcoilwtico$), but has missing data on weekends, holidays, and market closure gaps.
+* Created a continuous daily date table spanning **Jan 1, 2013 to Aug 31, 2017**.
+* For every missing oil price date, used a **20-point bisect neighborhood average algorithm** (`bisect.bisect_right`):
+  - Located the **10 nearest known oil prices before** the date.
+  - Located the **10 nearest known oil prices after** the date.
+  - Calculated their 20-point local mean to continuously interpolate missing prices across weekend gaps and holiday closures without introducing artificial boundary jumps.
 
 ### Step 1.4: Store Transaction & Foot Traffic Imputation
 * `transactions.csv` was missing records for 118 active trading days across various stores.
@@ -111,12 +112,12 @@ Below is the complete technical documentation for every feature column in the fi
 ### Category 4: Macro-Economic Oil Signals (3 Columns)
 
 #### 13. `oil_price`
-* **How:** Daily interpolated crude oil price ($dcoilwtico$).
-* **Why:** Ecuador is an oil-dependent economy; oil prices directly influence national consumer spending power.
+* **How:** Daily crude oil price ($dcoilwtico$), continuously imputed across weekend and holiday gaps using a 20-point bisect neighborhood average algorithm (10 known oil prices before + 10 known oil prices after).
+* **Why:** Ecuador is an oil-dependent economy; crude oil export revenues directly influence national consumer purchasing power.
 
 #### 14. `oil_roll_mean_30`
 * **How:** 30-day centered moving average of crude oil prices (`window=30, center=True, min_periods=1`).
-* **Why (EDA Clue):** Dual Y-axis plot (`plot_sales_vs_oil`) proved sales follow macroeconomic oil trends over smooth 30-day windows rather than daily price noise.
+* **Why (EDA Clue):** The dual Y-axis plot (`plot_sales_vs_oil`) proved a striking **inverse relationship**: as crude oil prices plummeted from over $100/barrel in 2014 down to ~$30/barrel in late 2015, total store sales steadily rose across Ecuador, proving that sales follow macroeconomic oil trends over smooth 30-day windows rather than daily price noise.
 
 #### 15. `oil_diff_7`
 * **How:** 7-day price difference ($\text{oil}_t - \text{oil}_{t-7}$).

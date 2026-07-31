@@ -1,6 +1,4 @@
-"""
-Model training module matching Cell 91 (LightGBM) and Cell 92 (XGBoost) of main.ipynb.
-"""
+
 
 import numpy as np
 import pandas as pd
@@ -10,10 +8,6 @@ from sklearn.metrics import root_mean_squared_error
 
 
 def train_lgbm(df, features=None, val_end_date="2017-08-15"):
-    """
-    Trains baseline LightGBM regressor on 16-day holdout validation split.
-    Matches Cell 91 of main.ipynb exactly.
-    """
     df = df.copy()
 
     # 1. Convert string categorical columns to 'category' dtype for LightGBM
@@ -70,10 +64,6 @@ def train_lgbm(df, features=None, val_end_date="2017-08-15"):
 
 
 def train_xgb(df, features=None, val_end_date="2017-08-15"):
-    """
-    Trains baseline XGBoost regressor on 16-day holdout validation split.
-    Matches Cell 92 of main.ipynb exactly.
-    """
     df = df.copy()
 
     # 1. Convert string categorical columns to 'category' dtype for XGBoost
