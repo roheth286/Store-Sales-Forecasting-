@@ -34,7 +34,6 @@ Directly merging `holidays_events.csv` causes severe row duplication because mul
 * `transactions.csv` was missing records for 118 active trading days across various stores.
 * **Closed Days:** For days where store daily sales totaled exactly zero (`total_sales == 0`), transactions were explicitly set to `0`.
 * **Active Glitch Days:** For active days with missing transactions, store-by-store linear regression models ($y = mx + c$) were fitted on known sales vs. transaction data ($R^2 > 0.85$). Missing transaction values were imputed using each store's custom linear fit:
-  $$\text{imputed\_transactions} = \max(0, \text{round}(m \cdot \text{total\_sales} + c))$$
 
 ### Step 1.5: Filtering Pre-Opening Zero-Sales Rows
 * Analysis revealed that 8 late-opening stores (Store 52, 22, 21, 42, 29, 20, 53, 36) had artificial zero-sales records logged prior to their actual grand opening dates (e.g., Store 52 opened on April 20, 2017, but had 1,566 zero-sales rows starting from 2013).
